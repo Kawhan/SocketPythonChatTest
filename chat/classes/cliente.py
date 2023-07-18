@@ -26,14 +26,16 @@ class Cliente:
             mensagem = input("Mensagem: ")
 
             # Criptografa e envia a mensagem
-            msg_cifrada = crypto_class.encrypt(mensagem)
+            msg_cifrada = crypto_class.encrypt(mensagem, 2, 3)
+            
+            print(msg_cifrada)
             
             self.cliente.send(msg_cifrada.encode('utf-8'))
 
             # Recebe e descriptografa a mensagem recebida
             msg_cifrada = self.cliente.recv(1024)
             
-            msg = crypto_class.decrypt(msg_cifrada).decode('utf-8')
+            msg = crypto_class.decrypt(msg_cifrada.decode('utf-8'), 2, 3)
 
             if msg == 'terminar': 
                 terminado = True

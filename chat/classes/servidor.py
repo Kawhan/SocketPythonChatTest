@@ -27,7 +27,8 @@ class Servidor:
             msg_cifrada = cliente.recv(1024)
 
             # Descriptografa a mensagem recebida
-            msg = crypto_class.decrypt(msg_cifrada.decode('utf-8'))
+            print(msg_cifrada)
+            msg = crypto_class.decrypt(msg_cifrada.decode('utf-8'), 2, 3)
 
             if msg == "terminar":
                 terminado = True
@@ -37,7 +38,7 @@ class Servidor:
 
             # Criptografa e envia a mensagem de entrada
             mensagem = input('Mensagem: ')
-            msg_cifrada = crypto_class.encrypt(mensagem).encode('utf-8')
+            msg_cifrada = crypto_class.encrypt(mensagem, 2 , 3).encode('utf-8')
             cliente.send(msg_cifrada)
 
         cliente.close()
