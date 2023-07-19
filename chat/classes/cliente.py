@@ -1,3 +1,5 @@
+import hashlib
+import pickle
 import socket
 
 from classes.cryptography_class import My_crypto
@@ -24,19 +26,48 @@ class Cliente:
 
         while not terminado:
             mensagem = input("Mensagem: ")
+            
+            # Cria o hash da mensagem
+            hash_original = hashlib.sha256(mensagem.encode()).hexdigest()
 
             # Criptografa e envia a mensagem
             msg_cifrada = crypto_class.encrypt(mensagem, 2, 3)
             
-            print(msg_cifrada)
+            # Cria um objeto com a mensagem criptografada e o hash da mensagem original
+            data = {
+                'mensagem_criptografada': msg_cifrada.encode('utf-8'),
+                'hash_original': hash_original
+            }
             
-            self.cliente.send(msg_cifrada.encode('utf-8'))
+            # Serializa o dado
+            data_serialized = pickle.dumps(data)
 
-            # Recebe e descriptografa a mensagem recebida
-            msg_cifrada = self.cliente.recv(1024)
+            # Envia o dado serializado
+            self.cliente.send(data_serialized)
+
+            # Recebe o objeto com a mensagem criptografada e o hash unico
+            data_serialized_received = self.cliente.recv(1024)
             
+            # Deserializa o dado recebido
+            data_received = pickle.loads(data_serialized_received)
+            
+            # Recupera as informações do objeto de maneira separada e salva em uma variável
+            msg_cifrada = data_received['mensagem_criptografada']
+            hash_received = data_received['hash_original']
+            
+            # Decripta a mensagem antes cryptada
             msg = crypto_class.decrypt(msg_cifrada.decode('utf-8'), 2, 3)
 
+            # Calcula o hash da mensagem original
+            hash_original = hashlib.sha256(msg.encode()).hexdigest()
+
+            # Verifica se teve uma alteração nesse hash
+            if hash_original == hash_received:
+                print("Mensagem recebida sem alterações:", msg)
+            else:
+                print("A mensagem foi alterada durante a transmissão!")
+                
+            # Verifica se o chat deve ser encerrado 
             if msg == 'terminar': 
                 terminado = True
             else:

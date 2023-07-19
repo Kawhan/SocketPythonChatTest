@@ -1,3 +1,5 @@
+import hashlib
+import pickle
 import socket
 
 from classes.cryptography_class import My_crypto
@@ -24,22 +26,54 @@ class Servidor:
         crypto_class = My_crypto()
 
         while not terminado:
-            msg_cifrada = cliente.recv(1024)
+            # Recebe o dado enviado pelo cliente serializado
+            data_serialized_received = cliente.recv(1024)
 
+            # Deserializa os dados
+            data_received = pickle.loads(data_serialized_received)
+            
+            # Recupera as informações e salva cada 1 em uma variável
+            msg_cifrada = data_received['mensagem_criptografada']
+            hash_received = data_received['hash_original']
+            
             # Descriptografa a mensagem recebida
-            print(msg_cifrada)
             msg = crypto_class.decrypt(msg_cifrada.decode('utf-8'), 2, 3)
+            
+            # Calcula o hash da mensagem original
+            hash_original = hashlib.sha256(msg.encode()).hexdigest()
 
+            # Verifica se teve alteração no hash
+            if hash_original == hash_received:
+                print("Mensagem recebida sem alterações:", msg)
+            else:
+                print("A mensagem foi alterada durante a transmissão!")
+
+            # verifica se o chat está encerrado
             if msg == "terminar":
                 terminado = True
                 print("Chat terminado")
             else:
                 print(msg)
 
-            # Criptografa e envia a mensagem de entrada
             mensagem = input('Mensagem: ')
-            msg_cifrada = crypto_class.encrypt(mensagem, 2 , 3).encode('utf-8')
-            cliente.send(msg_cifrada)
+            
+            # Calcula um hash da mensagem original
+            hash_original = hashlib.sha256(mensagem.encode()).hexdigest()
+
+            # Cifra a mensagem
+            msg_cifrada = crypto_class.encrypt(mensagem, 2 , 3)
+            
+            # Cria o objeto com hash original e a mensagem cryptografada
+            data = {
+                'mensagem_criptografada': msg_cifrada.encode('utf-8'),
+                'hash_original': hash_original
+            }
+            
+            # Seriaaliza os dados
+            data_serialized = pickle.dumps(data)
+
+            # Envia os dados
+            cliente.send(data_serialized)
 
         cliente.close()
         self.servidor.close()
