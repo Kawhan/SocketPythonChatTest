@@ -1,6 +1,6 @@
 class My_crypto:
-    def __init__(self):
-        pass
+    def __init__(self, key):
+        self.key = key
 
     def encrypt(self, string_verdadeira, conjunto, vezes):
         string_criptografada = ""
@@ -19,7 +19,8 @@ class My_crypto:
                 string_criptografada += string_verdadeira[i]
                 i += 1
 
-        return self.second_floor_crypt(string_criptografada)
+        string_criptografada = self.second_floor_crypt(string_criptografada)
+        return self.third_floor_encrypt(string_criptografada, self.key)
 
     def second_floor_crypt(self, texto):
         tabela_substituicao = {
@@ -44,7 +45,19 @@ class My_crypto:
 
         return texto_criptografado
 
+    def third_floor_encrypt(self, msg_decriptograda, key):
+        msg_cryptografada = ""
+        for i in range(len(msg_decriptograda)):
+            char_msg = msg_decriptograda[i]
+            char_key = key[i % len(key)]
+            msg_cryptografada += chr(ord(char_msg) ^ (char_key))
+
+        print(msg_cryptografada)
+        return msg_cryptografada
+
     def decrypt(self, string_criptografada, conjunto, vezes):
+        string_criptografada = self.third_floor_decrypt(
+            string_criptografada, self.key)
         string_criptografada = self.second_floor_decrypt(string_criptografada)
 
         string_descriptografada = ""
@@ -97,3 +110,13 @@ class My_crypto:
                 i += 1
 
         return decrypted_text
+
+    def third_floor_decrypt(self, msg_cryptografada, key):
+        msg_descriptografada = ""
+        for i in range(len(msg_cryptografada)):
+            char_msg = ord(msg_cryptografada[i])
+            char_key = key[i % len(key)]
+            msg_descriptografada += chr((char_msg) ^ (char_key))
+
+        print(msg_descriptografada)
+        return msg_descriptografada

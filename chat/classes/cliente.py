@@ -18,7 +18,7 @@ class Cliente:
 
     def start_chat_cliente(self):
         terminado = False
-        crypto_class = My_crypto()
+        crypto_class = My_crypto(key=b'TESTECGAVESEG URA123')
         print("Digite 'terminar' para terminar o chat")
 
         while not terminado:

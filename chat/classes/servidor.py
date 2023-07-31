@@ -21,7 +21,7 @@ class Servidor:
 
     def start_chat(self, cliente):
         terminado = False
-        crypto_class = My_crypto()
+        crypto_class = My_crypto(key=b'TESTECGAVESEG URA123')
 
         while not terminado:
             # Recebe o dado enviado pelo cliente serializado
